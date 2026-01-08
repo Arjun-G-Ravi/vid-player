@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MeTube</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo"><span>▶</span> MeTube</a>
+        <input type="text" class="search-bar" placeholder="Search">
+        <div style="width: 100px;"></div>
+    </nav>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <a href="/" class="sidebar-item">🏠 Home</a>
+            <a href="#" class="sidebar-item">🩳 Shorts</a>
+            <a href="#" class="sidebar-item">📺 Subscriptions</a>
+            <hr style="border: 0.5px solid #333;">
+            <a href="#" class="sidebar-item">🕒 History</a>
+        </aside>
+
+        <main class="content">
+            <div class="video-grid">
+                {% for file in files %}
+                <a href="{{ url_for('watch', filename=file.url) }}" class="video-card">
+                    {% if file.type == 'video' %}
+                        <div class="thumbnail" style="display:flex; align-items:center; justify-content:center; background:#222;">
+                            🎬
+                        </div>
+                    {% else %}
+                        <img class="thumbnail" src="{{ url_for('serve_media', filename=file.url) }}">
+                    {% endif %}
+                    <div class="video-info">
+                        <h3>{{ file.name }}</h3>
+                        <p style="color: #aaa; font-size: 12px;">Local User • MeTube</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
