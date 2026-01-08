@@ -1,0 +1,65 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="channel-header">
+    <div class="channel-header-avatar" style="background-color: {{ current_channel.color }}">
+        {{ channel_name[0]|upper }}
+    </div>
+    <div class="channel-meta">
+        <h1>{{ current_channel.display_name }}</h1>
+        <button class="toggle-btn {% if current_channel.show_in_home %}active{% endif %}" 
+                onclick="toggleHome('{{ channel_name }}', this)">
+            {% if current_channel.show_in_home %}
+            🔔 Showing in Home
+            {% else %}
+            🔕 Hidden from Home
+            {% endif %}
+        </button>
+    </div>
+</div>
+
+<div class="video-grid">
+    {% for video in videos %}
+    <div class="video-card" onclick="openPlayer('{{ video.channel }}', '{{ video.filename }}')">
+        <div class="thumbnail-container" 
+             {% if config.HOVER_PLAY %}
+             onmouseenter="hoverPlay(this)" 
+             onmouseleave="hoverStop(this)"
+             {% endif %}>
+            <img src="{{ url_for('static', filename='thumbnails/' + video.thumbnail) }}" class="thumbnail-img" loading="lazy">
+            <video class="video-preview" muted loop playsinline>
+                <source src="{{ url_for('video_stream', channel=video.channel, filename=video.filename) }}" type="video/mp4">
+            </video>
+        </div>
+        <div class="video-info">
+            <div class="video-details">
+                <div class="video-title">{{ video.title }}</div>
+                <div class="channel-name">{{ video.filename }}</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+function toggleHome(channelName, btn) {
+    fetch('/api/toggle_home', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ channel: channelName })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            if(data.new_state) {
+                btn.classList.add('active');
+                btn.innerHTML = '🔔 Showing in Home';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '🔕 Hidden from Home';
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

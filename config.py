@@ -1,13 +1,12 @@
 import os
 
-# --- CONFIGURE THESE ---
-VIDEO_DIR = r'/home/arjun/0_contingency-plans/videos'  # Path to your folders
-THUMBNAIL_DIR = os.path.join(os.getcwd(), 'thumbnail_cache')
-HOVER_PLAY = True
-PORT = 5000
-# -----------------------
+# ABSOLUTE PATH to your main video folder containing subfolders (channels)
+# Example: "C:/Users/Name/Videos/MeTubeLibrary" or "/home/user/videos"
+MEDIA_PATH = "/home/arjun/0_contingency-plans/videos" 
 
-if not os.path.exists(THUMBNAIL_DIR):
-    os.makedirs(THUMBNAIL_DIR)
+# Player Settings
+HOVER_PLAY = True  # Set to False to disable hover preview
+DEFAULT_VOLUME = 0.5
 
-CHANNELS_CONFIG_FILE = os.path.join(os.getcwd(), 'channels.json')
+# Supported extensions
+VIDEO_EXTENSIONS = ('.mp4', '.mkv', '.webm', '.avi', '.mov')

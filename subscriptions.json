@@ -1,0 +1,32 @@
+{
+    "david goggins": {
+        "display_name": "david goggins",
+        "show_in_home": true,
+        "color": "#fd2da8"
+    },
+    "geohot": {
+        "display_name": "geohot",
+        "show_in_home": true,
+        "color": "#a7687f"
+    },
+    "ltt": {
+        "display_name": "ltt",
+        "show_in_home": true,
+        "color": "#eacb2b"
+    },
+    "network chuck": {
+        "display_name": "network chuck",
+        "show_in_home": true,
+        "color": "#93a773"
+    },
+    "ryan focus": {
+        "display_name": "ryan focus",
+        "show_in_home": true,
+        "color": "#fa8da2"
+    },
+    "techlore": {
+        "display_name": "techlore",
+        "show_in_home": true,
+        "color": "#b9e7d7"
+    }
+}

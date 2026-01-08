@@ -1,92 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>MeTube - {{ title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeTube</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+
+    <!-- Sidebar -->
     <div class="sidebar">
-        <h2 style="padding-left: 24px;">MeTube</h2>
-        <a href="/">Home</a>
-        <a href="/subscriptions">Subscriptions</a>
+        <div class="logo"><span>▶</span> MeTube</div>
+        <a href="{{ url_for('index') }}" class="nav-item {% if page == 'home' %}active{% endif %}">
+            🏠 Home
+        </a>
+        <a href="{{ url_for('subscriptions_page') }}" class="nav-item {% if page == 'subs' %}active{% endif %}">
+            📺 Subscriptions
+        </a>
+        
+        <div class="nav-header">Subscriptions</div>
+        {% for name, data in subs.items() %}
+        <a href="{{ url_for('channel', name=name) }}" class="nav-item {% if page == 'channel' and channel_name == name %}active{% endif %}">
+            <div class="channel-icon" style="background-color: {{ data.color }}">{{ name[0]|upper }}</div>
+            {{ data.display_name }}
+        </a>
+        {% endfor %}
     </div>
 
+    <!-- Main Content -->
     <div class="main-content">
-        <h1>{{ title }}</h1>
+        {% block content %}
         <div class="video-grid">
-            {% for vid in videos %}
-            <div class="video-card" onclick="openPlayer('{{ vid.path }}')">
+            {% for video in videos %}
+            <div class="video-card" onclick="openPlayer('{{ video.channel }}', '{{ video.filename }}')">
                 <div class="thumbnail-container" 
-                     onmouseenter="startHover(this, '{{ vid.path }}')" 
-                     onmouseleave="stopHover(this, '{{ vid.id }}')">
-                    <img src="/thumbnail/{{ vid.id }}" id="img-{{ vid.id }}">
+                     {% if config.HOVER_PLAY %}
+                     onmouseenter="hoverPlay(this)" 
+                     onmouseleave="hoverStop(this)"
+                     {% endif %}>
+                    <img src="{{ url_for('static', filename='thumbnails/' + video.thumbnail) }}" class="thumbnail-img" loading="lazy">
+                    <video class="video-preview" muted loop playsinline>
+                        <source src="{{ url_for('video_stream', channel=video.channel, filename=video.filename) }}" type="video/mp4">
+                    </video>
                 </div>
                 <div class="video-info">
-                    <div class="video-title">{{ vid.title }}</div>
-                    <div class="video-meta">{{ vid.channel }}</div>
+                    <div class="video-avatar" style="background-color: {{ video.channel_color }}">
+                        {{ video.channel[0]|upper }}
+                    </div>
+                    <div class="video-details">
+                        <div class="video-title">{{ video.title }}</div>
+                        <div class="channel-name">{{ video.channel }}</div>
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
+        {% endblock %}
     </div>
 
-    <!-- Video Player Modal -->
-    <div id="player-modal">
-        <div style="width: 80%;">
-            <video id="main-player" controls></video>
+    <!-- Custom Player Overlay -->
+    <div class="player-overlay" id="playerOverlay">
+        <div class="player-container">
+            <button class="close-player" onclick="closePlayer()">×</button>
+            <video class="main-player" id="mainVideo" onclick="togglePlay()"></video>
+            
             <div class="controls">
-                <label>Speed: </label>
-                <select id="speed-ctrl" onchange="changeSpeed(this.value)">
-                    <option value="0.5">0.5x</option>
-                    <option value="1" selected>1x</option>
-                    <option value="1.5">1.5x</option>
-                    <option value="2">2x</option>
-                    <option value="3">3x</option>
-                </select>
-                <button onclick="closePlayer()" style="margin-left: 20px;">Close</button>
+                <div class="progress-bar" onclick="seek(event)">
+                    <div class="progress-filled" id="progressBar"></div>
+                </div>
+                <button class="btn-control" id="playBtn" onclick="togglePlay()">▶</button>
+                <div style="color:white; font-size:12px;" id="timeDisplay">0:00 / 0:00</div>
+                
+                <div class="speed-control">
+                    <span style="color:white; font-size:12px;">Speed: <span id="speedVal">1.0</span>x</span>
+                    <input type="range" min="0.25" max="3.0" step="0.25" value="1.0" class="speed-slider" oninput="changeSpeed(this.value)">
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const hoverEnabled = {{ 'true' if hover_play else 'false' }};
-        
-        function startHover(container, path) {
-            if(!hoverEnabled) return;
-            const video = document.createElement('video');
-            video.src = '/video_file/' + path;
-            video.muted = true;
-            video.autoplay = true;
-            video.loop = true;
-            video.style.position = 'absolute';
-            video.style.top = '0';
-            video.style.left = '0';
-            container.appendChild(video);
+        // Hover Play Logic
+        let hoverTimeout;
+        function hoverPlay(container) {
+            const vid = container.querySelector('.video-preview');
+            hoverTimeout = setTimeout(() => {
+                vid.style.display = 'block';
+                vid.play().catch(e => console.log("Autoplay prevented"));
+            }, 500); // 0.5s delay
         }
 
-        function stopHover(container, id) {
-            const vid = container.querySelector('video');
-            if(vid) container.removeChild(vid);
+        function hoverStop(container) {
+            clearTimeout(hoverTimeout);
+            const vid = container.querySelector('.video-preview');
+            vid.pause();
+            vid.currentTime = 0;
+            vid.style.display = 'none';
         }
 
-        function openPlayer(path) {
-            const modal = document.getElementById('player-modal');
-            const player = document.getElementById('main-player');
-            player.src = '/video_file/' + path;
-            modal.style.display = 'flex';
-            player.play();
+        // Full Player Logic
+        const overlay = document.getElementById('playerOverlay');
+        const video = document.getElementById('mainVideo');
+        const playBtn = document.getElementById('playBtn');
+        const progressBar = document.getElementById('progressBar');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const speedVal = document.getElementById('speedVal');
+
+        function openPlayer(channel, filename) {
+            const src = `/video_stream/${encodeURIComponent(channel)}/${encodeURIComponent(filename)}`;
+            video.src = src;
+            overlay.style.display = 'flex';
+            video.play();
+            playBtn.innerText = '❚❚';
         }
 
         function closePlayer() {
-            const modal = document.getElementById('player-modal');
-            const player = document.getElementById('main-player');
-            player.pause();
-            modal.style.display = 'none';
+            video.pause();
+            video.src = "";
+            overlay.style.display = 'none';
+        }
+
+        function togglePlay() {
+            if (video.paused) {
+                video.play();
+                playBtn.innerText = '❚❚';
+            } else {
+                video.pause();
+                playBtn.innerText = '▶';
+            }
         }
 
         function changeSpeed(val) {
-            document.getElementById('main-player').playbackRate = parseFloat(val);
+            video.playbackRate = val;
+            speedVal.innerText = val;
         }
+
+        video.addEventListener('timeupdate', () => {
+            const percent = (video.currentTime / video.duration) * 100;
+            progressBar.style.width = `${percent}%`;
+            
+            const curMins = Math.floor(video.currentTime / 60);
+            const curSecs = Math.floor(video.currentTime % 60);
+            const durMins = Math.floor(video.duration / 60) || 0;
+            const durSecs = Math.floor(video.duration % 60) || 0;
+            timeDisplay.innerText = `${curMins}:${curSecs < 10 ? '0'+curSecs : curSecs} / ${durMins}:${durSecs < 10 ? '0'+durSecs : durSecs}`;
+        });
+
+        function seek(e) {
+            const rect = e.target.closest('.progress-bar').getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            video.currentTime = pos * video.duration;
+        }
+
+        // Close on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePlayer();
+            if (e.key === ' ' && overlay.style.display === 'flex') {
+                e.preventDefault();
+                togglePlay();
+            }
+        });
     </script>
 </body>
 </html>

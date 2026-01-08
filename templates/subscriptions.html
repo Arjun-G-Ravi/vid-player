@@ -1,16 +1,20 @@
 {% extends "index.html" %}
+
 {% block content %}
-<div class="main-content">
-    <h1>Subscriptions</h1>
-    <div class="video-grid">
-        {% for channel in channels %}
-        <a href="/channel/{{ channel }}" style="text-decoration: none; color: inherit;">
-            <div class="video-card" style="text-align: center; padding: 20px; background: #1e1e1e;">
-                <div style="width: 100px; height: 100px; background: #333; border-radius: 50%; margin: 0 auto 10px;"></div>
-                <h3>{{ channel }}</h3>
+<h2 style="margin-bottom: 20px;">All Subscriptions</h2>
+<div class="video-grid">
+    {% for name, data in subs.items() %}
+    <a href="{{ url_for('channel', name=name) }}" style="text-decoration: none; color: inherit;">
+        <div style="display: flex; flex-direction: column; align-items: center; background: #1a1a1a; padding: 20px; border-radius: 12px; transition: 0.2s; cursor: pointer;">
+            <div style="width: 100px; height: 100px; border-radius: 50%; background-color: {{ data.color }}; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: black; margin-bottom: 15px;">
+                {{ name[0]|upper }}
             </div>
-        </a>
-        {% endfor %}
-    </div>
+            <div style="font-size: 18px; font-weight: bold;">{{ data.display_name }}</div>
+            <div style="color: #aaa; margin-top: 5px;">
+                {% if data.show_in_home %}Visible in Home{% else %}Hidden from Home{% endif %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
 </div>
 {% endblock %}
