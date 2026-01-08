@@ -1,121 +1,130 @@
 :root {
-    --yt-black: #0f0f0f;
+    --bg-color: #0f0f0f;
+    --sidebar-color: #0f0f0f;
+    --card-hover: #272727;
+    --text-color: #ffffff;
+    --text-dim: #aaaaaa;
     --yt-red: #ff0000;
-    --yt-gray: #272727;
-    --yt-text: #ffffff;
-    --yt-text-secondary: #aaaaaa;
 }
 
 body {
-    background-color: var(--yt-black);
-    color: var(--yt-text);
-    font-family: "Roboto", Arial, sans-serif;
     margin: 0;
-}
-
-/* Navbar */
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background-color: var(--yt-black);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-    font-size: 20px;
-}
-
-.logo span { color: var(--yt-red); margin-right: 5px; }
-
-.search-bar {
-    background: var(--yt-gray);
-    border: 1px solid #333;
-    padding: 8px 15px;
-    border-radius: 20px;
-    width: 40%;
-    color: white;
-}
-
-/* Layout */
-.main-container {
+    font-family: "Roboto", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     display: flex;
 }
 
+/* Sidebar */
 .sidebar {
     width: 240px;
-    padding: 10px;
-    height: calc(100vh - 70px);
-    position: sticky;
-    top: 60px;
+    height: 100vh;
+    position: fixed;
+    padding-top: 20px;
+    background: var(--sidebar-color);
 }
 
-.sidebar-item {
-    padding: 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    text-decoration: none;
-    color: white;
+.sidebar a {
     display: block;
+    padding: 12px 24px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
 }
 
-.sidebar-item:hover { background-color: var(--yt-gray); }
+.sidebar a:hover {
+    background-color: var(--card-hover);
+    border-radius: 10px;
+    margin: 0 10px;
+}
 
-/* Video Grid */
-.content {
-    flex: 1;
-    padding: 20px;
+/* Main Content */
+.main-content {
+    margin-left: 240px;
+    padding: 24px;
+    width: 100%;
 }
 
 .video-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
 }
 
 .video-card {
-    text-decoration: none;
-    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: 0.2s;
 }
 
-.thumbnail {
+.thumbnail-container {
+    position: relative;
     width: 100%;
     aspect-ratio: 16/9;
-    background-color: #333;
+    background: #000;
     border-radius: 12px;
+    overflow: hidden;
+}
+
+.thumbnail-container img, .thumbnail-container video {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-.video-info h3 {
-    font-size: 14px;
-    margin: 10px 0 5px 0;
+.video-info {
+    padding: 12px 0;
+}
+
+.video-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
-/* Watch Page */
-.watch-container {
-    display: flex;
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
+.video-meta {
+    font-size: 14px;
+    color: var(--text-dim);
 }
 
-.main-video { flex: 3; margin-right: 20px; }
-.recommendations { flex: 1; }
+/* Modal Player */
+#player-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
 
-video, .main-image {
-    width: 100%;
-    border-radius: 12px;
-    background: black;
+video#main-player {
+    width: 80%;
+    max-height: 80vh;
+    outline: none;
+}
+
+.controls {
+    margin-top: 10px;
+    text-align: center;
+}
+
+button.sub-btn {
+    background: white;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.sub-btn.off {
+    background: #333;
+    color: white;
 }

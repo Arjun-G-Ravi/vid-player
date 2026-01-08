@@ -1,6 +1,6 @@
 Make me a local youtube clone for displaying my local videos. it should use flask and html. make it look like youtube as much as possible amd name it MeTube. I also want a config file which contains the path to videos and other settings. The media path will point to a folder which contains multiple subfolders. These subfolders should act as subscribed channels(and should be available in subscription section). 
 
-There should be a videos, subscription in the left side of the site. The videos section should have random video from the whole subscriptions. When i open subscription page for each channel, it should look like yt's page and i should have the option to "show videos from this channel in home page" toggle instead of subscribe. Also add thumbnail to the video automatically and hover play(the hover play config should be in config.py). The media player will have yt like features such as speed control from 0.5x to 3x.
+There should be a videos, subscription in the left side of the site. The videos section should have random video from the whole subscriptions. When i open subscription page for each channel, it should look like yt's page and i should have the option to "show videos from this channel in home page" toggle instead of subscribe. Also add thumbnail to the video automatically and hover play(the hover play config should be in config.py). The media player will have yt like features such as speed control from 0.25x to 3x. This should be made into a analog bar where i can select the requred speed i want (like volume selection). Ensure the player UI is good. Make the whole thing fast and responsive.
 
 The code should be make in 
 - static
@@ -9,5 +9,6 @@ The code should be make in
     - index.html
     - channel.html
     - subscriptions.html
+    - subscriptions.json # information about channel like channel thumbnail, other info
 - app.py
 - config.py
